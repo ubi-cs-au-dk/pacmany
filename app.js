@@ -99,13 +99,24 @@ io.on('connection', function(socket){
         if (Games[data.gameid] != null){
             var ua = uaparser(data.useragent);
             
-            if (Games[data.gameid].players.length == 0){
-                var newColor = [255,0,255];
-            } else if (Games[data.gameid].players.length == 1){
-                var newColor = [255,255,0];
-            } else {
-                var newColor = Games[data.gameid].getPlayerColor();
+            var currentGame = Games[data.gameid];
+
+            if(currentGame.gamemode != "TeamCompetitive"){
+                if (currentGame.players.length == 0){
+                    var newColor = [255,0,255];
+                } else if (currentGame.players.length == 1){
+                    var newColor = [255,255,0];
+                } else {
+                    var newColor = currentGame.getPlayerColor();
+                }
+            }else{
+                if(currentGame.team1.length > currentGame.team2.length){
+                    var newColor = GAME_CONFIG.TEAM_2_COLOR;
+                }else{
+                    var newColor = GAME_CONFIG.TEAM_1_COLOR;
+                }
             }
+
             pool.connect(function(err, client, done) {
                 if(err) {
                     return console.error('ERROR #010: fetching client from pool', err);
@@ -118,16 +129,24 @@ io.on('connection', function(socket){
                             playerid = result.rows[0].id
                             console.log("playerid", playerid);
                             socket.join(playerid);
-                            if(Games[data.gameid].gamemode == "Competitive"){
-                                Games[data.gameid].addPlayer(playerid, data.nickname, newColor, socket, socket.id);
+                            //Add players
+                            if(currentGame.gamemode == "Competitive"){
+                                currentGame.addPlayer(playerid, data.nickname, newColor, socket, socket.id);
                                 socket.to(playerid).emit("resetLife",{life:GAME_CONFIG.GAME_LIFE_COUNT});
                             } else{
-                                Games[data.gameid].addPlayer(playerid, data.nickname, newColor, socket, socket.id);
+                                currentGame.addPlayer(playerid, data.nickname, newColor, socket, socket.id);
                             }
-                            if(Games[data.gameid].gamemode =="Competitive"){
-                                callback({playerid : playerid, color : newColor,life : GAME_CONFIG.GAME_LIFE_COUNT});
-                            } else {
+                            //Perform callbacks
+                            if(currentGame.gamemode == "Competitive"){
+                                callback({playerid : playerid, color : newColor, life : GAME_CONFIG.GAME_LIFE_COUNT});
+                            } else if(currentGame.gamemode == "Collaborative") {
                                 callback({playerid : playerid, color : newColor});
+                            } else if(currentGame.gamemode == "TeamCompetitive"){
+                                if(getPlayerTeam(playerid, currentGame) == "team1"){
+                                    callback({playerid : playerid, color : newColor, life : currentGame.team1lives});
+                                }else{
+                                    callback({playerid : playerid, color : newColor, life : currentGame.team2lives});
+                                }
                             }
                         }
                     });
@@ -351,6 +370,11 @@ function ClassGame(mapFile, gameid, name, pLocation, gamemode, showQRCode, showH
     this.pills = [];
     this.connectedScreens = [];
     this.wormholes = [];
+
+    this.team1 = [];
+    this.team2 = [];
+    this.team1lives = GAME_CONFIG.GAME_LIFE_COUNT;
+    this.team2lives = GAME_CONFIG.GAME_LIFE_COUNT;
     
     this.gameState = GAME_IDLE;
 }
@@ -380,6 +404,15 @@ ClassGame.prototype.addPlayer = function(playerid,  nickname, color, socket, soc
     position = this.getRandPos();
     player = new ClassPlayer(this.gameid, playerid, nickname, color, position.x, position.y, this.getRandDirection(), socket, socketid, life);
     this.players.push(player);
+    
+    if (this.gamemode == "TeamCompetitive"){
+        if(this.team1.length > this.team2.length){
+            this.team2.push(player);
+        }else{
+            this.team1.push(player);
+        }
+    }
+
     pool.connect(function(err, client, done) {
         if(err) {
             return console.error('Error #016: fetching client from pool', err);
@@ -466,11 +499,20 @@ ClassGame.prototype.updateScreens = function(){
 
 ClassGame.prototype.emitScores = function() {
     var playerData = [];
-    if(this.gamemode != "Collaborative"){
+    if(this.gamemode == "Competitive"){
         for (player in this.players ){
-            playerData.push({nickname: this.players[player].nickname, score: this.players[player].score, id : this.players[player].playerid, color : this.players[player].color, pillCount:this.players[player].pillCount,portalsused:this.players[player].portalsused});
+            playerData.push(
+                {
+                    nickname: this.players[player].nickname, 
+                    score: this.players[player].score, 
+                    id : this.players[player].playerid, 
+                    color : this.players[player].color, 
+                    pillCount:this.players[player].pillCount,
+                    portalsused:this.players[player].portalsused
+                }
+            );
         }
-    } else {
+    } else if(this.gamemode == "Collaborative") {
         pc = 0;
         for(pill in this.pills){
             if(this.pills[pill].ready) {
@@ -478,6 +520,43 @@ ClassGame.prototype.emitScores = function() {
             }
         }
         playerData.push({nickname: "Score", score: this.gameScore, id : this.gameid, pillCount: pc, portalsused: this.portalsused});
+    } else if(this.gamemode == "TeamCompetitive"){
+        team1score = 0;
+        team2score = 0;
+        team1pc = 0;
+        team2pc = 0;
+        team1portalsused = 0;
+        team2portalsused = 0;
+        for(player in this.team1){
+            team1score += this.team1[player].score;
+            team1pc += this.team1[player].pillCount;
+            team1portalsused += this.team1[player].portalsused;
+        }
+        for(player in this.team2){
+            team2score += this.team2[player].score;
+            team2pc += this.team2[player].pillCount;
+            team2portalsused += this.team2[player].portalsused;
+        }
+        playerData.push(
+            {
+                nickname: "Team 1", 
+                score: team1score, 
+                id: this.gameid, 
+                color: GAME_CONFIG.TEAM_1_COLOR,
+                pillCount: team1pc,
+                portalsused: team1portalsused
+            }
+        );
+        playerData.push(
+            {
+                nickname: "Team 2", 
+                score: team2score, 
+                id: this.gameid, 
+                color: GAME_CONFIG.TEAM_2_COLOR,
+                pillCount: team2pc,
+                portalsused: team2portalsused
+            }
+        );
     }
     this.notifyPlayer(this.players,"updateScores", playerData);
 }
@@ -570,8 +649,20 @@ ClassGame.prototype.collision = function() {
                                 io.to(out.playerid).emit("waitForOtherPlayers");
                                 out.out = true;
                             }
-                        } else {
+                        } else if(this.gamemode == "Collaborative"){
                             this.lives -= 1;
+                        }else if(this.gamemode == "TeamCompetitive"){
+                            if(getPlayerTeam(this.players[player].playerid, this) == "team1"){
+                                this.team1lives -= 1;
+                                for(teamplayer in this.team1){
+                                    io.to(this.team1[teamplayer].playerid).emit("lifeDrain");
+                                }
+                            }else{
+                                this.team2lives -= 1;
+                                for(teamplayer in this.team2){
+                                    io.to(this.team2[teamplayer].playerid).emit("lifeDrain");
+                                }
+                            }
                         }
                         try {
                             setTimeout(function(player,s) {s.setAlive(player,s)},3000,player,this);
@@ -731,6 +822,11 @@ ClassGame.prototype.updateGame = function(){
                     this.switchGameState(GAME_GAME_OVER);
                 } else if(this.gameScore >= this.maxScore){
                     this.switchGameState(GAME_GAME_WON);
+                }
+            } else if(this.gamemode == "TeamCompetitive"){
+                var gameOver = (this.team1lives <= 0 || this.team2lives <= 0);
+                if(gameOver){
+                    this.switchGameState(GAME_GAME_OVER);
                 }
             } else {
                 if(this.lives <= 0) {
@@ -1261,4 +1357,15 @@ function updateOverview(){
 
 setInterval(updateOverview,1000);
 
+/*** HELPER METHODS ***/
+function getPlayerTeam(playerid, game) {
+    var i;
+    var list = game.team1;
+    for (i = 0; i < list.length; i++) {
+        if (list[i].playerid === playerid) {
+            return "team1";
+        }
+    }
 
+    return "team2";
+}
