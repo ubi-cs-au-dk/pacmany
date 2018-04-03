@@ -5,6 +5,8 @@ var players = [];
 var ghosts = [];
 var pills = [];
 var wormholes = [];
+var team1 = [];
+var team2 = [];
 var mapScale,
     pillSize,
     pillSizeFactor,
@@ -15,11 +17,21 @@ var mapScale,
     wormholeFactor;
 var ghostLegToggle = false;
 var score = 0;
+var team1score = 0;
+var team2score = 0;
 var maxScore = 0;
 var lives = 0;
+var team1lives = 0;
+var team2lives = 0;
 var splitscreenDifference = Math.floor(gameMap.length/2);
 var splitter;
 var setupDone = false;
+var gamemode = "";
+
+//Colors ----
+var TEAM_1_COLOR = [255, 255, 0];
+var TEAM_2_COLOR = [255, 0, 255];
+//-----
 
 //For debuging:--------    
 function mouseClicked(){
@@ -56,7 +68,16 @@ if(gameid != ""){
         maxScore = data.maxScore;
         lives = data.lives;
         pills = data.pills;
-        wormholes = data.wormholes;        
+        wormholes = data.wormholes;
+        gamemode = data.gamemode;
+        if(gamemode == "TeamCompetitive"){
+            team1 = data.team1;
+            team2 = data.team2;
+            team1score = data.team1score;
+            team2score = data.team2score;
+            team1lives = data.team1lives;
+            team2lives = data.team2lives;
+        }        
         if (splitscreen == splits){
             var table = document.getElementById("score").getElementsByTagName("tbody")[0];
 
@@ -242,7 +263,7 @@ function drawPills(x,y,mapScale, size, color){
 function drawMain(){
 	if (setupDone == false)
 		return;
-	
+    
     if(animationTimer <0){
         animationTimerFactor = -1*animationTimerFactor;
     } else if (animationTimer > 1){
@@ -313,7 +334,7 @@ function drawMain(){
         }
 
         for (i=0;i<players.length;i++){
-            drawPacman(gameMap,mapScale,players[i].direction,players[i].posX,players[i].posY,players[i].color,animationTimer,players[i].pillActive);
+            drawPacman(gameMap,mapScale,players[i].direction,players[i].posX,players[i].posY,players[i].color,animationTimer,players[i].pillActive, players[i].team);
         }
         
         for(i=0;i<ghosts.length;i++){
@@ -373,7 +394,7 @@ function drawMain(){
             drawWormhole(mapScale,wormholes[wormhole].x-splitter*splitscreen,wormholes[wormhole].y,animationTimer,wormholes[wormhole].ready,wormholes[wormhole].destX*mapScale,wormholes[wormhole].destY*mapScale);
         }
         for (i=0;i<players.length;i++){
-            drawPacman(gameMap,mapScale,players[i].direction,players[i].posX-splitter*splitscreen,players[i].posY,players[i].color,animationTimer,players[i].pillActive);
+            drawPacman(gameMap,mapScale,players[i].direction,players[i].posX-splitter*splitscreen,players[i].posY,players[i].color,animationTimer,players[i].pillActive, players[i].team);
         }
 
         for(i=0;i<ghosts.length;i++){
@@ -400,22 +421,28 @@ function drawMain(){
         rect((splitter-15)*mapScale,0,splitter*mapScale,0.8*mapScale);
     }
     
-    textSize(1*mapScale);
+    textSize(0.8*mapScale);
     strokeWeight(1);
-    fill('#FFFF00');
-    stroke('#FFFF00');
+    fill(TEAM_1_COLOR);
+    stroke(TEAM_1_COLOR);
     textAlign(LEFT);
     textStyle(BOLD);
     if (splitscreen == 0){
-        if(gamemode != "Collaborative") {
-           text("Score: "+score+"/"+maxScore,0.75*mapScale,0.75*mapScale);
+        if(gamemode == "Collaborative") {
+           text("Score: "+score+"/"+maxScore, 0.75*mapScale, 0.75*mapScale);
+        }else if(gamemode == "TeamCompetitive"){
+            text("Team 1 - Lives: "+team1lives+" Score: "+team1score, 0.75*mapScale, 0.75*mapScale);
         }
     }
     
     if (splitscreen == splits){
+        fill(TEAM_2_COLOR);
+        stroke(TEAM_2_COLOR);
         textAlign(RIGHT);
-        if(gamemode != "Collaborative") {
+        if(gamemode == "Collaborative") {
             text("Lives: "+lives,(splitter-0.75)*mapScale,0.75*mapScale);
+        }else if(gamemode == "TeamCompetitive"){
+            text("Team 2 - Lives: "+team2lives+" Score: "+team2score,(splitter-0.75)*mapScale,0.75*mapScale);
         }
     }
 }
@@ -439,39 +466,62 @@ function drawWormhole(mapScale,x,y,animationTimer,ready,destX,destY){
 
 }
 
-function drawPacman(gameMap,mapScale,direction,x,y,color,animationTimer,pillActive){
+function drawPacman(gameMap,mapScale,direction,x,y,color,animationTimer,pillActive, team){
+    var teamColor = [0, 0, 0];
+    if(gamemode == "TeamCompetitive"){
+        if(team == "team1"){
+            teamColor = TEAM_1_COLOR;
+        }else{
+            teamColor = TEAM_2_COLOR;
+        }
+    }
     fill(color);
+    
     ellipseMode(CENTER);
     strokeWeight(1)
     stroke(0);
     ellipse((x+0.5)*mapScale,(y+0.5)*mapScale,mapScale*0.9,mapScale*0.9);
-    fill(0);
+    if(gamemode == "TeamCompetitive"){
+        ellipseMode(CENTER);
+        noFill();
+        strokeWeight(2);
+        stroke(teamColor);
+        ellipse((x+0.5)*mapScale,(y+0.5)*mapScale,mapScale*0.95,mapScale*0.95);
+        stroke(0);
+    }
+    fill([0, 0, 0]);
     strokeWeight(0);
     if(direction == 0)
     {
         triangle((x+0.4*animationTimer)*mapScale,y*mapScale,(x+0.5)*mapScale,(y+0.5)*mapScale,(x+1-0.4*animationTimer)*mapScale,(y)*mapScale);
+        fill(teamColor);
         ellipseMode(CENTER);
         ellipse((x+0.25)*mapScale,(y+0.5)*mapScale,mapScale/4,mapScale/4);
     } else if (direction == 1) {
         triangle((x+1)*mapScale,(y+0.4*animationTimer)*mapScale,(x+0.5)*mapScale,(y+0.5)*mapScale,(x+1)*mapScale,(y+1-0.4*animationTimer)*mapScale);
+        fill(teamColor);
         ellipseMode(CENTER);
         ellipse((x+0.5)*mapScale,(y+0.25)*mapScale,mapScale/4,mapScale/4);
     } else if (direction == 2) {
         triangle((x+0.4*animationTimer)*mapScale,(y+1)*mapScale,(x+0.5)*mapScale,(y+0.5)*mapScale,(x+1-0.4*animationTimer)*mapScale,(y+1)*mapScale);
+        fill(teamColor);
         ellipseMode(CENTER);
         ellipse((x+0.25)*mapScale,(y+0.5)*mapScale,mapScale/4,mapScale/4);
     } else if (direction == 3) {
         triangle(x*mapScale,(y+0.4*animationTimer)*mapScale,(x+0.5)*mapScale,(y+0.5)*mapScale,x*mapScale,(y+1-0.4*animationTimer)*mapScale);
+        fill(teamColor);
         ellipseMode(CENTER);
         ellipse((x+0.5)*mapScale,(y+0.25)*mapScale,mapScale/4,mapScale/4);
     }
-    if(pillActive){
-        ellipseMode(CENTER);
-        noFill();
-        strokeWeight(1);
-        stroke(255);
-        ellipse((x+0.5)*mapScale,(y+0.5)*mapScale,mapScale*0.95,mapScale*0.95);
-        stroke(0);
+    if(gamemode != "TeamCompetitive"){
+        if(pillActive){
+            ellipseMode(CENTER);
+            noFill();
+            strokeWeight(1);
+            stroke(255);
+            ellipse((x+0.5)*mapScale,(y+0.5)*mapScale,mapScale*0.95,mapScale*0.95);
+            stroke(0);
+        }
     }
 }
 

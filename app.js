@@ -110,11 +110,14 @@ io.on('connection', function(socket){
                     var newColor = currentGame.getPlayerColor();
                 }
             }else{
+                /*
                 if(currentGame.team1.length > currentGame.team2.length){
                     var newColor = GAME_CONFIG.TEAM_2_COLOR;
                 }else{
                     var newColor = GAME_CONFIG.TEAM_1_COLOR;
                 }
+                */
+               var newColor = currentGame.getPlayerColor();
             }
 
             pool.connect(function(err, client, done) {
@@ -375,6 +378,8 @@ function ClassGame(mapFile, gameid, name, pLocation, gamemode, showQRCode, showH
     this.team2 = [];
     this.team1lives = GAME_CONFIG.GAME_LIFE_COUNT;
     this.team2lives = GAME_CONFIG.GAME_LIFE_COUNT;
+    this.team1score = 0;
+    this.team2score = 0;
     
     this.gameState = GAME_IDLE;
 }
@@ -439,7 +444,8 @@ ClassGame.prototype.getPlayerColor = function() {
             color = [Math.floor(Math.random()*155), Math.floor(Math.random()*55), Math.floor(Math.random()*100+155)];
         }
         for(player in this.players) {
-            if(this.colorDistance(color, this.players[player].color)< 20){
+            console.log("Colordistance is " + this.colorDistance(color, this.players[player].color));
+            if(this.colorDistance(color, this.players[player].color) < 150){
                 difference = true;
             }
         }
@@ -479,7 +485,17 @@ ClassGame.prototype.updateScreens = function(){
     var playerList = [];
     for (p in this.players){
         if(!this.players[p].out){
-            playerList.push({nickname : this.players[p].nickname, score : this.players[p].score, color : this.players[p].color, posX : this.players[p].posX, posY : this.players[p].posY, pillActive: this.players[p].pillActive, direction: this.players[p].direction});
+            var currPlayer = {
+                nickname : this.players[p].nickname, 
+                score : this.players[p].score, 
+                color : this.players[p].color, 
+                posX : this.players[p].posX, 
+                posY : this.players[p].posY, 
+                pillActive: this.players[p].pillActive, 
+                direction: this.players[p].direction,
+                team: getPlayerTeam(this.players[p].playerid, this)
+            };
+            playerList.push(currPlayer);
         }
     }
     var wormholeList =[];
@@ -491,7 +507,13 @@ ClassGame.prototype.updateScreens = function(){
         nvecY = vecY/(vecLen*2)
         wormholeList.push({x:this.wormholes[w].posX,y:this.wormholes[w].posY,ready:this.wormholes[w].ready,destX :nvecX,destY:nvecY});
     } 
-    data = {players:playerList, ghosts:this.ghosts, score:this.gameScore, maxScore:this.maxScore, lives:this.lives, pills:this.pills, wormholes:wormholeList}
+    data = {players:playerList, ghosts:this.ghosts, score:this.gameScore, maxScore:this.maxScore, lives:this.lives, pills:this.pills, wormholes:wormholeList, gamemode: this.gamemode}
+    if(this.gamemode == "TeamCompetitive"){
+        data.team1lives = this.team1lives;
+        data.team2lives = this.team2lives;
+        data.team1score = this.team1score;
+        data.team2score = this.team2score;
+    }
     io.to(this.gameid).emit("updateScreens",data);
     this.emitScores();
 }
@@ -569,6 +591,13 @@ ClassGame.prototype.collision = function() {
             if(playerX % 1 == 0 && playerY % 1 == 0) {
                 if(this.usedMap[playerX][playerY] == 1){
                     this.players[player].score +=1;
+                    if(this.gamemode == "TeamCompetitive"){
+                        if(getPlayerTeam(this.players[player].playerid, this) == "team1"){
+                            this.team1score += 1;
+                        }else{
+                            this.team2score += 1;
+                        }
+                    }
                     this.gameScore +=1;               
                     this.usedMap[playerX][playerY] = 3;
                     io.to(this.gameid).emit("updateMap", data = {x:playerX,y:playerY,value:3})
@@ -700,6 +729,10 @@ ClassGame.prototype.init = function(){
     this.mapHeight = this.mapData.usedMap[0].length;
     this.maxScore = getMaxScore(this.mapData.usedMap);
     this.lives = GAME_CONFIG.GAME_LIFE_COUNT;
+    this.team1lives = GAME_CONFIG.GAME_LIFE_COUNT;
+    this.team2lives = GAME_CONFIG.GAME_LIFE_COUNT;
+    this.team1score = 0;
+    this.team2score = 0;
     this.gameScore = 0;
     this.portalsused = 0;
 

@@ -2,8 +2,9 @@
 "GAME_COUNT_DOWN_TIME" : 15,
 "GAME_DELAY_AFTER_GAME" : 5,
 "GAME_MODES" : ["Competitive", "Collaborative", "TeamCompetitive"],
-"TEAM_1_COLOR" : [240, 240, 60],
-"TEAM_2_COLOR" : [255, 99, 255],
+"TEAM_1_COLOR" : [255, 255, 0],
+"TEAM_3_COLOR" : [255, 99, 255],
+"TEAM_2_COLOR": [255, 0, 255],
 
 "CONFIG_PORT" : 3000,
 
