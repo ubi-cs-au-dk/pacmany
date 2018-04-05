@@ -117,7 +117,7 @@ io.on('connection', function(socket){
                     var newColor = GAME_CONFIG.TEAM_1_COLOR;
                 }
                 */
-               var newColor = currentGame.getPlayerColor();
+               var newColor = currentGame.getPredefinedPlayerColor();
             }
 
             pool.connect(function(err, client, done) {
@@ -380,6 +380,15 @@ function ClassGame(mapFile, gameid, name, pLocation, gamemode, showQRCode, showH
     this.team2lives = GAME_CONFIG.GAME_LIFE_COUNT;
     this.team1score = 0;
     this.team2score = 0;
+    //https://flatuicolors.com/palette/nl
+    this.predefinedColors = [
+        [234, 32, 39], //Red
+        [247, 159, 31], //Orange
+        [6, 82, 221], //Blue
+        [163, 203, 56], //Lightgreen
+        [0, 148, 50], //DarkGreen
+        [18, 203, 196] //Cyan
+    ];
     
     this.gameState = GAME_IDLE;
 }
@@ -431,6 +440,13 @@ ClassGame.prototype.addPlayer = function(playerid,  nickname, color, socket, soc
     });
 }
 
+ClassGame.prototype.getPredefinedPlayerColor = function() {
+    if(this.predefinedColors.length > 0){
+        return this.predefinedColors.shift();
+    }else{
+        return this.getPlayerColor();
+    }
+}
 
 ClassGame.prototype.getPlayerColor = function() {
      do {
@@ -444,12 +460,12 @@ ClassGame.prototype.getPlayerColor = function() {
             color = [Math.floor(Math.random()*155), Math.floor(Math.random()*55), Math.floor(Math.random()*100+155)];
         }
         for(player in this.players) {
-            console.log("Colordistance is " + this.colorDistance(color, this.players[player].color));
             if(this.colorDistance(color, this.players[player].color) < 150){
                 difference = true;
             }
         }
     } while(difference);
+    console.log("Color: " + color);
     return color;
 }
 
@@ -791,6 +807,8 @@ ClassGame.prototype.switchGameState = function(new_GameState){
         io.to(this.gameid).emit("gameOver", {});
         this.notifyPlayer(this.players, 'gameOverPlayer', data = {})
         this.players = [];
+        this.team1 = [];
+        this.team2 = [];
     } else if (new_GameState == GAME_GAME_WON){
         this.time = new Date().getTime();
         if(this.gamemode == "Competitive"){
@@ -804,6 +822,8 @@ ClassGame.prototype.switchGameState = function(new_GameState){
         }
         this.notifyPlayer(this.players,'gameWonPlayer',data = {})
         this.players = [];
+        this.team1 = [];
+        this.team2 = [];
     } else if (new_GameState == GAME_COUNT_DOWN){
         this.time = new Date().getTime();
         this.init();
@@ -902,7 +922,7 @@ ClassGame.prototype.updateGame = function(){
                     this.ghosts.push(new ClassGhost(this.gameid, i, this.getGhostPositon(), this.mapData.GHOST_START_DIRECTION));
                 }
             }
-            
+
             this.gameStep();
             this.updateScreens();
             
