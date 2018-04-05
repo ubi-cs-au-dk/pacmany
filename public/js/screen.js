@@ -522,6 +522,10 @@ function drawPacman(gameMap,mapScale,direction,x,y,color,animationTimer,pillActi
             ellipse((x+0.5)*mapScale,(y+0.5)*mapScale,mapScale*0.95,mapScale*0.95);
             stroke(0);
         }
+    }else{
+        if(pillActive){
+            
+        }
     }
 }
 

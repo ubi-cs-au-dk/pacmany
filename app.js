@@ -146,9 +146,9 @@ io.on('connection', function(socket){
                                 callback({playerid : playerid, color : newColor});
                             } else if(currentGame.gamemode == "TeamCompetitive"){
                                 if(getPlayerTeam(playerid, currentGame) == "team1"){
-                                    callback({playerid : playerid, color : newColor, life : currentGame.team1lives});
+                                    callback({playerid : playerid, color : newColor, life : currentGame.team1lives, teamColor : GAME_CONFIG.TEAM_1_COLOR});
                                 }else{
-                                    callback({playerid : playerid, color : newColor, life : currentGame.team2lives});
+                                    callback({playerid : playerid, color : newColor, life : currentGame.team2lives, teamColor : GAME_CONFIG.TEAM_2_COLOR});
                                 }
                             }
                         }
@@ -261,6 +261,14 @@ io.on('connection', function(socket){
             io.to(data.playerid).emit("updateControllerColor",{color:data.color});
             if (Games[data.gameid].gamemode == "Competitive"){
                 callback({life:GAME_CONFIG.GAME_LIFE_COUNT})
+            }else if(Games[data.gameid].gamemode = "TeamCompetitive"){
+                var tc;
+                if(getPlayerTeam(data.playerid, Games[data.gameid]) == "team1"){
+                    tc = GAME_CONFIG.TEAM_1_COLOR;
+                }else{
+                    tc = GAME_CONFIG.TEAM_2_COLOR;
+                }
+                callback({teamColor: tc})
             }
         } else {
           console.error("ERROR #025: not a valid game " + data.gameid);
@@ -776,18 +784,20 @@ ClassGame.prototype.init = function(){
     // reset pills
     this.pills = [];
     pillCount = 0;
-    for (i = 0; i < this.mapWidth; i++) {
-        for(j=0; j < this.mapHeight; j++ ){
-            if (this.usedMap[i][j] == 4){
-                if (this.gamemode == "Collaborative"){
-                    this.pills.push(new ClassPill({x:i, y:j},0,255));
-                } else {
-                    if(pillCount % 2 == 0){
-                        this.pills.push(new ClassPill({x:i, y:j},1,[255,0,255]));
+    if(this.gamemode != "TeamCompetitive"){
+        for (i = 0; i < this.mapWidth; i++) {
+            for(j=0; j < this.mapHeight; j++ ){
+                if (this.usedMap[i][j] == 4){
+                    if (this.gamemode == "Collaborative"){
+                        this.pills.push(new ClassPill({x:i, y:j},0,255));
                     } else {
-                        this.pills.push(new ClassPill({x:i, y:j},2,[255,255,0]));
+                        if(pillCount % 2 == 0){
+                            this.pills.push(new ClassPill({x:i, y:j},1,[255,0,255]));
+                        } else {
+                            this.pills.push(new ClassPill({x:i, y:j},2,[255,255,0]));
+                        }
+                        pillCount = pillCount +1;
                     }
-                    pillCount = pillCount +1;
                 }
             }
         }

@@ -87,6 +87,9 @@ function clickJoin(){
             controllerInfo.color = callback.color;
             controllerInfo.life = callback.life;
             $("#nippleBox").css('background', rgb(controllerInfo.color));
+            if(callback.teamColor){
+                $("#nippleBox").css('border-color', rgb(callback.teamColor));
+            }
             //drawController();
 
             createNipple();
@@ -102,6 +105,9 @@ function rejoind(){
         if(callback.life){
             controllerInfo.life = callback.life;
         }
+        if(callback.teamColor){
+            $("#nippleBox").css('border-color', rgb(callback.teamColor));
+        }
     });
 }
 
@@ -115,8 +121,7 @@ function createNipple() {
 
     var options = {
         zone: document.getElementById("nippleBox"),
-        mode: 'static',
-        position: {top: '50%', left: '50%'},
+        mode: 'dynamic',
         restOpacity: 0.8
     }
     
