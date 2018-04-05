@@ -11,6 +11,7 @@ html
     
     
     script(src='/socket.io/socket.io.js')
+    script(src="//yoannmoinet.github.io/nipplejs/javascripts/nipplejs.js")
     
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
     link(rel='stylesheet', href='css/stylecontroller.css')
@@ -29,6 +30,7 @@ html
         
     script(type='text/javascript', src='/js/controller.js')
   body
+    .nippleBox(id="nippleBox", style='visibility:hidden')
     .controllerOverlay(id='overlayJoin')
         h1 Welcome
         .form-group(id='join')
