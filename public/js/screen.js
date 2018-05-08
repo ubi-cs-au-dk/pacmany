@@ -111,6 +111,7 @@ if(gameid != ""){
     
     socket.on("gameCountDown", function(data){
         $( "#overlay" ).css( "visibility", "visible" );
+        $("#time").css("color", "#555");
         $( "#time" ).text(Math.floor(data.time / 1000));
     });
     
@@ -122,6 +123,13 @@ if(gameid != ""){
     socket.on("gameWon", function(data){
         $( "#overlay" ).css( "visibility", "visible" );
         if(typeof data.winner === 'string'){
+            var textColor = "#555";
+            if(data.winner === "Team 1"){
+                textColor = "#ffff00";
+            }else if(data.winner === "Team 2"){
+                textColor = "#ff00ff";
+            }
+            $("#time").css("color", textColor);
             $( "#time" ).text("!!! "+data.winner+" Won !!!");
         } else {
             $( "#time" ).text("!!! Game Won !!!");

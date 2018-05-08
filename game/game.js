@@ -483,6 +483,12 @@ ClassGame.prototype.switchGameState = function(new_GameState){
                     this.io.to(this.gameid).emit("gameWon", {winner : this.players[player].nickname});
                 }
             }
+        } else if(this.gameMode == "TeamCompetitive"){
+            if(team1score >= team2score){
+                this.io.to(this.gameid).emit("gameWon", {winner : 'Team 1'});
+            }else{
+                this.io.to(this.gameid).emit("gameWon", {winner : 'Team 2'});
+            }
         } else {
             this.io.to(this.gameid).emit("gameWon", {});
         }
@@ -545,7 +551,7 @@ ClassGame.prototype.updateGame = function(){
             } else if(this.gamemode == "TeamCompetitive"){
                 var gameOver = (this.team1lives <= 0 || this.team2lives <= 0);
                 if(gameOver){
-                    this.switchGameState(GAME_GAME_OVER);
+                    this.switchGameState(GAME_GAME_WON);
                 }
             } else {
                 if(this.lives <= 0) {
