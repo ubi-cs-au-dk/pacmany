@@ -4,6 +4,7 @@ var GAME_CONFIG = require('../config.json');
 var ClassGhost = require('./ghost.js');
 var ClassPlayer = require('./player.js');
 var ClassPill = require('./pill.js');
+var ClassWormhole = require('./wormhole.js');
 
 GAME_GAME_OVER = 0;
 GAME_GAME_WON = 1;

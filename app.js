@@ -340,17 +340,6 @@ https.listen(port, function () {
     console.log('listening on *:'+port);
 });
 
-function ClassWormhole(posX,posY){
-    this.posX = posX;
-    this.posY = posY;
-    this.destination;
-    this.ready = true;
-}
-
-ClassWormhole.prototype.addDestination = function(destination){
-    this.destination = destination;
-}
-
 function updateGames(){
     async.eachSeries(Object.keys(Games), function (key, callback) {
         Games[key].updateGame();
