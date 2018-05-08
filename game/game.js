@@ -28,7 +28,7 @@ function ClassGame(io, mapFile, gameid, name, pLocation, gamemode, showQRCode, s
     this.portalPairs = portalPairs;
     this.pillsPerPlayer = pillsPerPlayer;
 
-    this.lives = 5;
+    this.lives = 2;
     this.gameScore = 0;
     this.portalsused = 0;
     
@@ -483,11 +483,11 @@ ClassGame.prototype.switchGameState = function(new_GameState){
                     this.io.to(this.gameid).emit("gameWon", {winner : this.players[player].nickname});
                 }
             }
-        } else if(this.gameMode == "TeamCompetitive"){
+        } else if(this.gamemode == "TeamCompetitive"){
             if(team1score >= team2score){
-                this.io.to(this.gameid).emit("gameWon", {winner : 'Team 1'});
+                this.io.to(this.gameid).emit("gameWon", {winner : "Team 1"});
             }else{
-                this.io.to(this.gameid).emit("gameWon", {winner : 'Team 2'});
+                this.io.to(this.gameid).emit("gameWon", {winner : "Team 2"});
             }
         } else {
             this.io.to(this.gameid).emit("gameWon", {});

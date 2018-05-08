@@ -372,3 +372,16 @@ function updateOverview(){
 }
 
 setInterval(updateOverview,1000);
+
+/*** HELPER METHODS ***/
+function getPlayerTeam(playerid, game) {
+    var i;
+    var list = game.team1;
+    for (i = 0; i < list.length; i++) {
+        if (list[i].playerid === playerid) {
+            return "team1";
+        }
+    }
+
+    return "team2";
+}
