@@ -1,13 +1,15 @@
 html, body {
   height: 100%;
+  width: 100%;
   background: black;
   overflow:hidden;
 }
 
 body {
   margin: 0;
-  display: flex;
+  display: block;
   align-items: center;
+  flex-direction: column;
 }
 
 #gameInput {
@@ -45,4 +47,46 @@ body {
     color: #FFFFFF;
     display: block; /* Display block instead of inline */
     transition: 0.3s; /* Transition effects on hover (color) */
+}
+
+#infobar .row{
+    height: 100%;
+}
+
+#infobar .infobox{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#info1{
+    color: yellow;
+}
+
+#pinbox{
+    color: white;
+}
+
+#pinbox .title{
+    font-size: 15px;
+    margin-bottom: -10px;
+}
+
+#pinbox .pinnumber{
+    font-size: 45px;
+}
+
+#info2{
+    color: rgb(255, 0, 255);
+}
+
+.players{
+    font-size: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+    flex-wrap: wrap;
 }

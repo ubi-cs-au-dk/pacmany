@@ -36,9 +36,20 @@ html
         .overlay-content
             h1#time
                 | 
+    #infobar(style='height: 10%; color:white;text-align:center').container-fluid
+      .row
+        #info1.col-md-4.infobox 
+          .title Team 1 Players:
+          #players1.players 
+        #pinbox.col-md-4.infobox 
+          .title Game Pin:
+          #pin.pinnumber #{gameid}
+        #info2.col-md-4.infobox 
+          .title Team 2 Players:
+          #players2.players 
     #pacmany-holder
-    #qrcode(style='border: 5px solid white; width:100%; max-width: 265px; transform: scale(0.5, 0.5); transform-origin: left;')
-    table#score.table
+    //#qrcode(style='border: 5px solid white; width:100%; max-width: 265px; transform: scale(0.5, 0.5); transform-origin: left;')
+    //table#score.table
       thead
         tr
           th Player

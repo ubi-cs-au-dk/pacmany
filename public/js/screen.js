@@ -2,6 +2,8 @@ var w = window.innerWidth;
 var h = window.innerHeight;
 
 var players = [];
+var team1;
+var team2;
 var ghosts = [];
 var pills = [];
 var wormholes = [];
@@ -71,14 +73,32 @@ if(gameid != ""){
         wormholes = data.wormholes;
         gamemode = data.gamemode;
         if(gamemode == "TeamCompetitive"){
-            team1 = data.team1;
-            team2 = data.team2;
             team1score = data.team1score;
             team2score = data.team2score;
             team1lives = data.team1lives;
             team2lives = data.team2lives;
         }        
         if (splitscreen == splits){
+            if(gamemode == "TeamCompetitive"){
+                var team1container = document.getElementById("players1");
+                var team2container = document.getElementById("players2");
+                team1container.innerHTML = "";
+                team2container.innerHTML = "";
+    
+                for(player in players){
+                    var p = document.createElement("div");
+                    p.className = "player";
+                    p.innerHTML = players[player].nickname;
+                    if(players[player].team == "team1"){
+                        team1container.appendChild(p);
+                    }else{
+                        team2container.appendChild(p);
+                    }
+                }
+
+            }
+
+            /*
             var table = document.getElementById("score").getElementsByTagName("tbody")[0];
 
             var rows = table.getElementsByTagName("tr").length;
@@ -105,6 +125,7 @@ if(gameid != ""){
                 cell2.innerHTML = players[player].score;
                 i++;
             }
+            */
         }
         drawMain(gameMap,mapScale);
     });
@@ -156,23 +177,23 @@ if(gameid != ""){
     })
 }
 
-$(document).ready(function() {
-    if (splitscreen == splits){
-        p = ":" + port;
-        if (port == 80 && location.protocol == "http"){
-            p = ""
-        } else if (port == 443 && location.protocol == "https"){
-            p = ""
-        }
-        new QRCode(document.getElementById("qrcode"), location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid);
-    }
-    if (splitscreen != splits || showHighScore == 0) {
-        document.getElementById("score").style.display = "none";
-    }
-    if (showQRCode == 0 || splitscreen != splits){
-        $("#qrcode").css( "display", "none" );
-    }
-});
+// $(document).ready(function() {
+//     if (splitscreen == splits){
+//         p = ":" + port;
+//         if (port == 80 && location.protocol == "http"){
+//             p = ""
+//         } else if (port == 443 && location.protocol == "https"){
+//             p = ""
+//         }
+//         new QRCode(document.getElementById("qrcode"), location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid);
+//     }
+//     if (splitscreen != splits || showHighScore == 0) {
+//         document.getElementById("score").style.display = "none";
+//     }
+//     if (showQRCode == 0 || splitscreen != splits){
+//         $("#qrcode").css( "display", "none" );
+//     }
+// });
 
 function responsiveMap(mapW, mapH){
     var relationW = w / mapW;
@@ -217,11 +238,13 @@ function setup() {
     noLoop();
     resetDraw();
     
+    /*
     if (w- canvasWidth > h-canvasHeight){
         $("body").css("display", "flex");
     } else {
         $("body").css("display", "block");
-    }    
+    } 
+    */   
 	
 	setupDone = true;
 }
@@ -621,9 +644,11 @@ function windowResized() {
     background('#151584')
     resetDraw();
     
+    /*
     if (w- canvasWidth > h-canvasHeight){
         $("body").css("display", "flex");
     } else {
         $("body").css("display", "block");
     }
+    */
 }
