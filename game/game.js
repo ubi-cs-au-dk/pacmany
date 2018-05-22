@@ -71,7 +71,7 @@ ClassGame.prototype.gameStep = function() {
     this.collision();
 }
 
-ClassGame.prototype.addPlayer = function(playerid,  nickname, color, socket, socketid) {
+ClassGame.prototype.addPlayer = function(playerid,  nickname, color, socket, socketid, team) {
     if (this.gameState == GAME_IDLE)
         this.switchGameState(GAME_COUNT_DOWN);
     
@@ -84,10 +84,10 @@ ClassGame.prototype.addPlayer = function(playerid,  nickname, color, socket, soc
     this.players.push(player);
     
     if (this.gamemode == "TeamCompetitive"){
-        if(this.team1.length > this.team2.length){
-            this.team2.push(player);
-        }else{
+        if(team == 1){
             this.team1.push(player);
+        }else{
+            this.team2.push(player);
         }
     }
 

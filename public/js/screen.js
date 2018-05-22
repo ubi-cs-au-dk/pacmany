@@ -35,7 +35,7 @@ var TEAM_2_COLOR = [255, 0, 255];
 
 //For debuging:--------    
 function mouseClicked(){
-    var win = window.open("/controller?gameid=" + gameid)
+    var win = window.open("/controller?gameid=" + gameid + "&team=2");
     win.focus();
 }
 //--------------
@@ -164,13 +164,21 @@ $(document).ready(function() {
         } else if (port == 443 && location.protocol == "https"){
             p = ""
         }
-        new QRCode(document.getElementById("qrcode"), location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid);
+        new QRCode(
+            document.getElementById("qrcode1"), 
+            location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid + "&team=1"
+        );
+        new QRCode(
+            document.getElementById("qrcode2"), 
+            location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid + "&team=2"
+        );
     }
     if (splitscreen != splits || showHighScore == 0) {
         document.getElementById("score").style.display = "none";
     }
     if (showQRCode == 0 || splitscreen != splits){
-        $("#qrcode").css( "display", "none" );
+        $("#qrcode1").css( "display", "none" );
+        $("#qrcode2").css( "display", "none" );
     }
 });
 

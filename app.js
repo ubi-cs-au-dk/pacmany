@@ -136,10 +136,10 @@ io.on('connection', function(socket){
                             socket.join(playerid);
                             //Add players
                             if(currentGame.gamemode == "Competitive"){
-                                currentGame.addPlayer(playerid, data.nickname, newColor, socket, socket.id);
+                                currentGame.addPlayer(playerid, data.nickname, newColor, socket, socket.id, data.team);
                                 socket.to(playerid).emit("resetLife",{life:GAME_CONFIG.GAME_LIFE_COUNT});
                             } else{
-                                currentGame.addPlayer(playerid, data.nickname, newColor, socket, socket.id);
+                                currentGame.addPlayer(playerid, data.nickname, newColor, socket, socket.id, data.team);
                             }
                             //Perform callbacks
                             if(currentGame.gamemode == "Competitive"){
@@ -259,7 +259,7 @@ io.on('connection', function(socket){
             socket.join(data.playerid);
             
             Games[data.gameid].addPlayer(data.playerid, data.nickname, data.color, socket,
-            data.socketid);
+            data.socketid, data.team);
             io.to(data.playerid).emit("updateControllerColor",{color:data.color});
             if (Games[data.gameid].gamemode == "Competitive"){
                 callback({life:GAME_CONFIG.GAME_LIFE_COUNT})

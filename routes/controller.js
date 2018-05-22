@@ -14,8 +14,12 @@ function s4() {
 
 router.get('/', function (req, res, next) {
     query = res.req.query;
-    if (query.gameid != null && query.gameid != "" && Games[query.gameid] != null){
-        res.render('controller', {gameid : query.gameid, controllerid : guid()});
+    if (query.gameid != null && 
+        query.gameid != "" && 
+        Games[query.gameid] != null &&
+        query.team != null &&
+        query.team != ""){
+        res.render('controller', {gameid : query.gameid, controllerid : guid(), team: query.team});
     } else {
         res.redirect('/');
     }
