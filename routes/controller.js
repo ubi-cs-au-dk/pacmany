@@ -17,7 +17,7 @@ router.get('/', function (req, res, next) {
     if (query.gameid != null && query.gameid != "" && Games[query.gameid] != null){
         res.render('controller', {gameid : query.gameid, controllerid : guid()});
     } else {
-        res.render('controller', {gameid : null, controllerid : guid()});
+        res.redirect('/');
     }
 });
 

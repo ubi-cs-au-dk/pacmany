@@ -42,8 +42,9 @@ app.use(device.capture());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+
 index = require('./routes/imprint')
-app.use('/', require('./routes/controller'));
+app.use('/', index);
 app.use('/screen', require('./routes/screen'));
 app.use('/games', require('./routes/games'));
 app.use('/imprint', index);

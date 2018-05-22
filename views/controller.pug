@@ -32,13 +32,10 @@ html
   body
     .nippleBox(id="nippleBox", style='visibility:hidden')
         .touchIcon(id="touchIcon")
-            img(src="/img/touchicon-invertkl.png", alt="")
+            img(src="/img/touchicon-invert.png", alt="")
     .controllerOverlay(id='overlayJoin')
         h1 Welcome
         .form-group(id='join')
-            if(gameid === null || gameid === undefined)
-                label(for='gameid') Please enter the pin on the screen:
-                input#gameid.form-control(type='text', required='', ng-model="gameid")
             label(for='nickname') Please enter your nickname:
             input#nickname.form-control(type='text', required='', ng-model="nickname" , onKeyDown="if(event.keyCode==13) clickJoin();")
         button.btn.btn-default.btn-block(type='submit', onclick='clickJoin()', form='nickname') Join 
