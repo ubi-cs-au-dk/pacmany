@@ -106,6 +106,17 @@ if(gameid != ""){
                 i++;
             }
         }
+        var team1names = "";
+        var team2names = "";
+        players.forEach(function(player){
+            if(player.team === "team1") {
+                team1names += player.nickname + " ";
+            }else{
+                team2names += player.nickname + " ";
+            }
+        });
+        document.getElementById("team1names").innerText = team1names;
+        document.getElementById("team2names").innerText = team2names;
         drawMain(gameMap,mapScale);
     });
     
@@ -164,14 +175,16 @@ $(document).ready(function() {
         } else if (port == 443 && location.protocol == "https"){
             p = ""
         }
-        new QRCode(
-            document.getElementById("qrcode1"), 
-            location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid + "&team=1"
-        );
-        new QRCode(
-            document.getElementById("qrcode2"), 
-            location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid + "&team=2"
-        );
+       new QRCode(document.getElementById("qrcode1"), {
+           text: location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid + "&team=1",
+           colorDark: '#000000',
+           colorLight: '#ffff00'
+       });
+        new QRCode(document.getElementById("qrcode2"), {
+            text: location.protocol + '//' + location.hostname + p + "/controller?gameid="+ gameid + "&team=2",
+            colorDark: '#000000',
+            colorLight: '#ff00ff'
+        });
     }
     if (splitscreen != splits || showHighScore == 0) {
         document.getElementById("score").style.display = "none";
