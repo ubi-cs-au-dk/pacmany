@@ -46,3 +46,11 @@ body {
     display: block; /* Display block instead of inline */
     transition: 0.3s; /* Transition effects on hover (color) */
 }
+
+.qrcode {
+    border: 5px solid white; 
+    width:100%; 
+    max-width: 265px; 
+    transform: scale(0.5, 0.5); 
+    transform-origin: left;
+}
