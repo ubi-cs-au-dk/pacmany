@@ -36,12 +36,14 @@ router.get('/', function (req, res, next) {
         if (splitscreen > splits){
             splitscreen = 0
         }       
+
+        var side = query.side == null || query.side == "" ? 0 : query.side;
         
         console.log(Games[query.gameid].showHighScore);
         console.log(Games[query.gameid].showQRCode);
         
         console.log("MAP " + Games[query.gameid].mapData.file);
-        res.render('screen', { port : GAME_CONFIG.CONFIG_PORT, map : Games[query.gameid].mapData.file,
+        res.render('screen', { port : GAME_CONFIG.CONFIG_PORT, map : Games[query.gameid].mapData.file, side: side,
         gameid : query.gameid, screenid : guid(), showHighScore: Games[query.gameid].showHighScore, showQRCode : Games[query.gameid].showQRCode, splits : splits, splitscreen : splitscreen});
     } else {
         res.redirect('/');

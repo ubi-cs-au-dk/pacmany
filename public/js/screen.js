@@ -117,6 +117,13 @@ if(gameid != ""){
         });
         document.getElementById("team1names").innerText = team1names;
         document.getElementById("team2names").innerText = team2names;
+        if(side == 0){
+            document.getElementById("qrcode2").style.display = "none"; 
+            document.getElementById("team2names").style.display = "none"; 
+        }else{
+            document.getElementById("qrcode1").style.display = "none"; 
+            document.getElementById("team1names").style.display = "none"; 
+        }
         drawMain(gameMap,mapScale);
     });
     

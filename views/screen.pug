@@ -20,6 +20,7 @@ html
         var screenid = "#{screenid}";
         var showQRCode = #{showQRCode};
         var showHighScore = #{showHighScore};
+        var side = #{side};
         var socket = io();
         var loadedMap = false;
         var test = false;
@@ -38,7 +39,7 @@ html
                 | 
     #pacmany-holder
     #qrholder(style='height: 100vh')
-      #qrcode1.qrcode(style='align-self:flex-start')
+      #qrcode1.qrcode(style='align-self:flex-start; margin-top: 200px')
       #team1names(style='color:#ffff00')
       #qrcode2.qrcode(style='align-self:flex-end; margin-top: 200px')
       #team2names(style='color:#ff00ff')
